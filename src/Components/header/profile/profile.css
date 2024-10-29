@@ -1,0 +1,17 @@
+p{
+    color: black;
+    margin-top: 5px;
+}
+
+.profile p{
+    color: white;
+}
+
+.profile button{
+    background-color: transparent;
+    border:  none;
+}
+
+.profile button:hover{
+    scale: 1.3;
+}
