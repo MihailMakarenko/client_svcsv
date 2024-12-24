@@ -211,22 +211,26 @@ export default function UserPage() {
               {displayedTrips.length === 0 ? ( // Проверяем, есть ли поездки
                 <h3 className="header-orderCards">Заказов нет</h3> // Сообщение, если поездок нет
               ) : (
-                displayedTrips.map((trip) => (
-                  <OrderCard
-                    key={trip.TicketId}
-                    ticketId={trip.TicketId}
-                    startCity={trip.StartCity}
-                    finishCity={trip.FinishCity}
-                    startTime={trip.StartTime}
-                    finishTime={trip.FinishTime}
-                    dateDeparture={trip.DateTime}
-                    carrier={trip.NameCompany}
-                    busNumber={trip.BusNumber}
-                    places={trip.Seats}
-                    status={trip.Status}
-                    onUpdate={handleTripUpdate} // Передаем функцию обновления
-                  />
-                ))
+                displayedTrips.map((trip) => {
+                  console.log(trip); // Выводим текущую поездку
+
+                  return (
+                    <OrderCard
+                      key={trip.TicketId}
+                      ticketId={trip.TicketId}
+                      startCity={trip.StartCity}
+                      finishCity={trip.FinishCity}
+                      startTime={trip.StartTime}
+                      finishTime={trip.FinishTime}
+                      dateDeparture={trip.DateTime}
+                      carrier={trip.NameCompany}
+                      busNumber={trip.BusNumber}
+                      places={trip.Seats}
+                      status={trip.Status}
+                      onUpdate={handleTripUpdate}
+                    />
+                  );
+                })
               )}
             </div>
 

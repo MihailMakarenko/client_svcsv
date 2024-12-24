@@ -93,3 +93,8 @@
   font-weight: bold; /* Жирный шрифт для статуса */
   color: #28a745; /* Зеленый цвет для статуса */
 }
+
+.button-container button:disabled {
+  background-color: #cccccc; /* Цвет фона для недоступной кнопки */
+  cursor: not-allowed; /* Указатель для недоступной кнопки */
+}

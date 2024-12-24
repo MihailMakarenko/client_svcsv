@@ -34,7 +34,24 @@ class BusesServerApi {
     console.log(rating);
     try {
       const response = await this.api.put(`${ticketId}`, {
-        FeedbackId: 2,
+        Rating: rating,
+        TicketId: ticketId,
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        // Обработка ошибки, если промокод не найден
+        console.error(error.response.data.message);
+      } else {
+        console.error("Ошибка при запросе рейтинга:", error.message);
+      }
+    }
+  }
+
+  async addRating(rating, ticketId) {
+    console.log(rating);
+    try {
+      const response = await this.api.post(`/`, {
         Rating: rating,
         TicketId: ticketId,
       });

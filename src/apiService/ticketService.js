@@ -18,6 +18,7 @@ class ticketServerApi {
 
   async getDocxTicket(ticketId) {
     try {
+      console.log(ticketId);
       console.log("Запрос на получение PDF...");
       const response = await this.api.get(`/downloadPdfTicket/${ticketId}`, {
         responseType: "blob",
