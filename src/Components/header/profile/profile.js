@@ -5,13 +5,52 @@ import {
   Routes,
   useNavigate,
 } from "react-router-dom";
+import AutorizationModal from "../../AutorizationModal/AutorizationModal";
+import { useState, useEffect } from "react";
 
-function Profile() {
+function Profile({ onAuthorizationStatus }) {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  const handleOpenModal = () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/UserPage"); // Перенаправляем на UserPage, если токен существует
+    } else {
+      setIsModalOpen(true);
+      document.body.style.overflow = "hidden"; // Отключаем прокрутку
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    document.body.style.overflow = "auto"; // Включаем прокрутку
+    // window.location.reload();
+  };
+
+  const handleOverlayClick = (event) => {
+    // Закрываем модальное окно только если кликнули на затемненную область
+    if (event.target.className === "modal-overlay-autorization") {
+      handleCloseModal();
+    }
+  };
+
+  // Получаем имя из localStorage
+  const firstName = localStorage.getItem("firstName") || "Профиль";
+
+  const handleAuthorizationStatus = (status) => {
+    setIsAuthorized(status);
+    onAuthorizationStatus(status);
+    console.log("Авторизация статус:", status);
+  };
+
+  // Используем useEffect для вызова notify при изменении isAuthorized
 
   return (
     <div className="profile">
-      <button onClick={() => navigate("/available-bus")}>
+      <div></div>
+      <button className="button-profile" onClick={handleOpenModal}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="32"
@@ -29,7 +68,15 @@ function Profile() {
           />
         </svg>
       </button>
-      <p>Профиль</p>
+      <p>{firstName}</p> {/* Отображаем имя или "Профиль" */}
+      {isModalOpen && (
+        <div
+          className="modal-overlay-autorization"
+          onClick={handleOverlayClick}
+        >
+          <AutorizationModal onClose={handleCloseModal} />
+        </div>
+      )}
     </div>
   );
 }

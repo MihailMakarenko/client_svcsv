@@ -33,10 +33,7 @@ function CardBus(props) {
         <p>
           <strong>Перевозчик:</strong> {props.carrier}
         </p>
-        <p>
-          <strong>Номер платформы:</strong>
-          {props.platformNumber}
-        </p>
+
         <div>
           <h3>Дни отправления:</h3>
           <p>

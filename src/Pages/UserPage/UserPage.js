@@ -13,14 +13,90 @@ import Paper from "@mui/material/Paper";
 import OrderCard from "../../Components/OrderCard/OrderCard";
 import { useNavigate } from "react-router-dom";
 import Pagination from "@mui/material/Pagination";
+import TicketServerApi from "../../apiService/ticketService";
+import UserServerApi from "../../apiService/userService";
+import CallbackServerApi from "../../apiService/callbackService";
+import Button from "@mui/material/Button";
+import ButtonGroup from "@mui/material/ButtonGroup";
 
 export default function UserPage() {
+  const ticketServerApi = new TicketServerApi();
+  const userServerApi = new UserServerApi();
+  const callbackServerApi = new CallbackServerApi();
   const [value, setValue] = React.useState(0);
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [trips, setTrips] = React.useState([]); // Состояние для хранения поездок
+  const [loading, setLoading] = React.useState(true); // Состояние загрузки
   const itemsPerPage = 4; // Количество элементов на странице
+  const [isGetNewsletter, setUserNewsletter] = React.useState(false); // Начальное значение
+  const [isGetNotification, setUserNotification] = React.useState(false); // Начальное значение
+  const [isCallbackRequested, setCallbackReguested] = React.useState(false);
+
   const navigate = useNavigate();
 
-  // Функция для перехода на другую страницу
+  React.useEffect(() => {
+    const userId = localStorage.getItem("idUser");
+    if (!userId) {
+      console.error(
+        "ID пользователя не найден в localStorage. Перенаправление на страницу входа."
+      );
+      navigate("/login"); // Перенаправление на страницу входа
+      return;
+    }
+
+    const fetchTrips = async () => {
+      setLoading(true); // Устанавливаем состояние загрузки
+      const userId = localStorage.getItem("idUser");
+      if (!userId) {
+        console.error("ID пользователя не найден в localStorage.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await ticketServerApi.getTicetByUserId(userId);
+        setTrips(response.data); // Устанавливаем полученные данные в состояние
+      } catch (error) {
+        console.error("Ошибка при получении поездок:", error);
+      } finally {
+        setLoading(false); // Устанавливаем состояние загрузки в false
+      }
+    };
+
+    const fetchUser = async () => {
+      const userId = localStorage.getItem("idUser");
+      if (!userId) {
+        console.error("ID пользователя не найден в localStorage.");
+        return;
+      }
+      try {
+        const response = await userServerApi.getUser(userId);
+        setUserNewsletter(response.isGetNewsletter);
+        setUserNotification(response.isGetNotifications);
+      } catch (error) {
+        console.error("Ошибка при получении данных пользователя:", error);
+      }
+    };
+
+    const fetchCallback = async () => {
+      const userId = localStorage.getItem("idUser");
+      if (!userId) {
+        console.error("ID пользователя не найден в localStorage.");
+        return;
+      }
+      try {
+        const response = await callbackServerApi.getIsCallbackForUser(userId);
+        setCallbackReguested(response);
+        console.log(response);
+      } catch (error) {
+        console.error("Ошибка при получении данных пользователя:", error);
+      }
+    };
+
+    fetchTrips(); // Вызываем функцию получения данных поездок
+    fetchUser();
+    fetchCallback(); // Вызываем функцию получения данных пользователя
+  }, []);
+
   const handleNavigate = (newValue) => {
     if (newValue === 2) {
       navigate("/");
@@ -30,82 +106,142 @@ export default function UserPage() {
     }
   };
 
-  // Фильтрация поездок по статусу
+  const UserChangeNotification = async () => {
+    const userId = localStorage.getItem("idUser");
+    if (!userId) {
+      console.error("ID пользователя не найден в localStorage.");
+      return;
+    }
+    try {
+      const response = await userServerApi.changeNotification(
+        userId,
+        !isGetNotification
+      );
+      setUserNotification(!isGetNotification); // Обновляем состояние
+      console.log(response);
+    } catch (error) {
+      console.error("Ошибка при изменении уведомлений:", error);
+    }
+  };
+
+  const UserChangeNews = async () => {
+    const userId = localStorage.getItem("idUser");
+    if (!userId) {
+      console.error("ID пользователя не найден в localStorage.");
+      return;
+    }
+    try {
+      const response = await userServerApi.changeNews(userId, !isGetNewsletter);
+      setUserNewsletter(!isGetNewsletter); // Обновляем состояние
+      console.log(response);
+    } catch (error) {
+      console.error("Ошибка при изменении новостей:", error);
+    }
+  };
+
+  const Exit = () => {
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("idUser");
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
   const ongoingTrips = trips.filter(
-    (trip) => trip.status === "В пути" || trip.status === "Заказан"
+    (trip) => trip.Status === "В пути" || trip.Status === "Заказан"
   );
   const completedTrips = trips.filter(
-    (trip) => trip.status === "Завершён" || trip.status === "Отменен"
+    (trip) => trip.Status === "Завершён" || trip.Status === "Отменён"
   );
 
-  // Определяем текущие поездки для страницы
   const currentTrips = value === 0 ? completedTrips : ongoingTrips;
-  const totalPages = Math.ceil(currentTrips.length / itemsPerPage); // Общее количество страниц
+  const totalPages = Math.ceil(currentTrips.length / itemsPerPage);
 
-  // Вычисляем поездки для текущей страницы
   const displayedTrips = currentTrips.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const RequestCallback = async () => {
+    const userId = localStorage.getItem("idUser");
+    const response = await callbackServerApi.requestCallback(userId);
+    setCallbackReguested(true);
+  };
+
+  const handleTripUpdate = (updatedTrip) => {
+    setTrips((prevTrips) =>
+      prevTrips.map((trip) =>
+        trip.TicketId === updatedTrip.TicketId ? updatedTrip : trip
+      )
+    );
+  };
 
   return (
     <Box sx={{ pb: 7 }}>
       <CssBaseline />
       <Header />
       <main>
-        {value === 0 && ( // Если выбрана "История"
+        <ButtonGroup
+          className="button-group"
+          variant="contained"
+          aria-label="Basic button group"
+        >
+          <Button disabled={isCallbackRequested} onClick={RequestCallback}>
+            {isCallbackRequested ? "Звонок запрошен" : "Запросить звонок"}
+          </Button>
+          <Button onClick={UserChangeNotification}>
+            {isGetNotification
+              ? "Отписаться от уведомлений"
+              : "Подписаться на уведомления"}
+          </Button>
+          <Button onClick={UserChangeNews}>
+            {isGetNewsletter
+              ? "Отписаться от рассылки"
+              : "Подписаться на рассылку"}
+          </Button>
+          <Button onClick={Exit}>Выйти</Button>
+        </ButtonGroup>
+        {loading ? ( // Проверяем состояние загрузки
+          <h2>Загрузка...</h2>
+        ) : (
           <>
-            <h2>История</h2>
+            {value === 0 && <h2>История</h2>}
+            {value === 1 && <h2>Активные</h2>}
             <div className="card-container-userPage">
-              {displayedTrips.map((trip, index) => (
-                <OrderCard
-                  key={index}
-                  startCity={trip.startCity}
-                  finishCity={trip.finishCity}
-                  startTime={trip.startTime}
-                  finishTime={trip.finishTime}
-                  dateDeparture={trip.dateDeparture}
-                  carrier={trip.carrier}
-                  busNumber={trip.busNumber}
-                  places={trip.places}
-                  status={trip.status}
-                />
-              ))}
+              {displayedTrips.length === 0 ? ( // Проверяем, есть ли поездки
+                <h3 className="header-orderCards">Заказов нет</h3> // Сообщение, если поездок нет
+              ) : (
+                displayedTrips.map((trip) => (
+                  <OrderCard
+                    key={trip.TicketId}
+                    ticketId={trip.TicketId}
+                    startCity={trip.StartCity}
+                    finishCity={trip.FinishCity}
+                    startTime={trip.StartTime}
+                    finishTime={trip.FinishTime}
+                    dateDeparture={trip.DateTime}
+                    carrier={trip.NameCompany}
+                    busNumber={trip.BusNumber}
+                    places={trip.Seats}
+                    status={trip.Status}
+                    onUpdate={handleTripUpdate} // Передаем функцию обновления
+                  />
+                ))
+              )}
             </div>
+
+            {displayedTrips.length > 0 && ( // Пагинация только если есть поездки
+              <div className="pagination-container">
+                <Pagination
+                  count={totalPages}
+                  variant="outlined"
+                  color="primary"
+                  page={currentPage}
+                  onChange={(event, value) => setCurrentPage(value)}
+                />
+              </div>
+            )}
           </>
         )}
-
-        {value === 1 && ( // Если выбрана "Активные"
-          <>
-            <h2>Активные</h2>
-            <div className="card-container-userPage">
-              {displayedTrips.map((trip, index) => (
-                <OrderCard
-                  key={index}
-                  startCity={trip.startCity}
-                  finishCity={trip.finishCity}
-                  startTime={trip.startTime}
-                  finishTime={trip.finishTime}
-                  dateDeparture={trip.dateDeparture}
-                  carrier={trip.carrier}
-                  busNumber={trip.busNumber}
-                  places={trip.places}
-                  status={trip.status}
-                />
-              ))}
-            </div>
-          </>
-        )}
-
-        <div className="pagination-container">
-          <Pagination
-            count={totalPages}
-            variant="outlined"
-            color="primary"
-            page={currentPage}
-            onChange={(event, value) => setCurrentPage(value)} // Обновляем текущую страницу
-          />
-        </div>
       </main>
       <Paper
         sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}
@@ -125,315 +261,3 @@ export default function UserPage() {
     </Box>
   );
 }
-
-const trips = [
-  {
-    startCity: "Чаусы",
-    finishCity: "Могилев",
-    startTime: "10:20",
-    finishTime: "13:20",
-    dateDeparture: "2024-08-24",
-    carrier: "МогилевОблАвтотранс",
-    busNumber: "2341 AB-6",
-    places: [25, 26, 54],
-    status: "Заказан",
-  },
-  {
-    startCity: "Минск",
-    finishCity: "Гомель",
-    startTime: "09:00",
-    finishTime: "11:30",
-    dateDeparture: "2024-08-25",
-    carrier: "ГомельАвто",
-    busNumber: "1234 XY-7",
-    places: [1, 2, 3],
-    status: "В пути",
-  },
-  {
-    startCity: "Витебск",
-    finishCity: "Брест",
-    startTime: "15:00",
-    finishTime: "17:45",
-    dateDeparture: "2024-08-26",
-    carrier: "ВитебскТранс",
-    busNumber: "5678 CD-9",
-    places: [10, 11],
-    status: "Отменен",
-  },
-  {
-    startCity: "Гродно",
-    finishCity: "Минск",
-    startTime: "08:00",
-    finishTime: "10:30",
-    dateDeparture: "2024-08-27",
-    carrier: "ГродноАвто",
-    busNumber: "9012 EF-5",
-    places: [12, 13, 14, 15],
-    status: "Завершён",
-  },
-  {
-    startCity: "Могилев",
-    finishCity: "Брест",
-    startTime: "18:00",
-    finishTime: "20:45",
-    dateDeparture: "2024-08-28",
-    carrier: "БрестАвто",
-    busNumber: "3456 GH-8",
-    places: [20, 21],
-    status: "Заказан",
-  },
-  {
-    startCity: "Минск",
-    finishCity: "Витебск",
-    startTime: "16:00",
-    finishTime: "18:30",
-    dateDeparture: "2024-08-29",
-    carrier: "МинскТранс",
-    busNumber: "7890 IJ-4",
-    places: [5, 6, 7],
-    status: "В пути",
-  },
-  {
-    startCity: "Брест",
-    finishCity: "Гродно",
-    startTime: "14:15",
-    finishTime: "16:50",
-    dateDeparture: "2024-08-30",
-    carrier: "БрестАвто",
-    busNumber: "1357 KL-2",
-    places: [30, 31],
-    status: "Завершён",
-  },
-  {
-    startCity: "Гомель",
-    finishCity: "Чаусы",
-    startTime: "11:00",
-    finishTime: "13:00",
-    dateDeparture: "2024-08-31",
-    carrier: "ГомельАвто",
-    busNumber: "2468 MN-3",
-    places: [8, 9, 10],
-    status: "Отменен",
-  },
-  // Добавленные элементы
-  {
-    startCity: "Минск",
-    finishCity: "Пинск",
-    startTime: "12:00",
-    finishTime: "14:00",
-    dateDeparture: "2024-09-01",
-    carrier: "МинскПасс",
-    busNumber: "1111 AA-1",
-    places: [4, 5],
-    status: "Заказан",
-  },
-  {
-    startCity: "Гродно",
-    finishCity: "Гомель",
-    startTime: "09:30",
-    finishTime: "12:00",
-    dateDeparture: "2024-09-02",
-    carrier: "ГродноТранс",
-    busNumber: "2222 BB-2",
-    places: [16, 17],
-    status: "В пути",
-  },
-  {
-    startCity: "Брест",
-    finishCity: "Минск",
-    startTime: "08:45",
-    finishTime: "11:00",
-    dateDeparture: "2024-09-03",
-    carrier: "БрестЭкспресс",
-    busNumber: "3333 CC-3",
-    places: [18, 19],
-    status: "Завершён",
-  },
-  {
-    startCity: "Витебск",
-    finishCity: "Могилев",
-    startTime: "13:15",
-    finishTime: "15:30",
-    dateDeparture: "2024-09-04",
-    carrier: "ВитебскСервис",
-    busNumber: "4444 DD-4",
-    places: [22, 23],
-    status: "Отменен",
-  },
-  {
-    startCity: "Чаусы",
-    finishCity: "Кобрин",
-    startTime: "10:00",
-    finishTime: "12:30",
-    dateDeparture: "2024-09-05",
-    carrier: "ЧаусыАвто",
-    busNumber: "5555 EE-5",
-    places: [24],
-    status: "Заказан",
-  },
-  {
-    startCity: "Могилев",
-    finishCity: "Витебск",
-    startTime: "19:00",
-    finishTime: "21:15",
-    dateDeparture: "2024-09-06",
-    carrier: "МогилевТранс",
-    busNumber: "6666 FF-6",
-    places: [32, 33],
-    status: "В пути",
-  },
-  {
-    startCity: "Гомель",
-    finishCity: "Минск",
-    startTime: "07:30",
-    finishTime: "09:50",
-    dateDeparture: "2024-09-07",
-    carrier: "ГомельАвто",
-    busNumber: "7777 GG-7",
-    places: [34, 35],
-    status: "Завершён",
-  },
-  {
-    startCity: "Пинск",
-    finishCity: "Брест",
-    startTime: "15:30",
-    finishTime: "17:00",
-    dateDeparture: "2024-09-08",
-    carrier: "ПинскТранс",
-    busNumber: "8888 HH-8",
-    places: [36],
-    status: "Отменен",
-  },
-  {
-    startCity: "Гродно",
-    finishCity: "Витебск",
-    startTime: "11:15",
-    finishTime: "14:00",
-    dateDeparture: "2024-09-09",
-    carrier: "ГродноЭкспресс",
-    busNumber: "9999 II-9",
-    places: [37, 38],
-    status: "Заказан",
-  },
-  {
-    startCity: "Минск",
-    finishCity: "Гродно",
-    startTime: "14:45",
-    finishTime: "17:00",
-    dateDeparture: "2024-09-10",
-    carrier: "МинскАвто",
-    busNumber: "1010 JJ-10",
-    places: [39, 40],
-    status: "В пути",
-  },
-  {
-    startCity: "Брест",
-    finishCity: "Могилев",
-    startTime: "09:00",
-    finishTime: "11:15",
-    dateDeparture: "2024-09-11",
-    carrier: "БрестТранс",
-    busNumber: "1212 KK-11",
-    places: [41, 42],
-    status: "Завершён",
-  },
-  {
-    startCity: "Витебск",
-    finishCity: "Чаусы",
-    startTime: "17:00",
-    finishTime: "19:30",
-    dateDeparture: "2024-09-12",
-    carrier: "ВитебскАвто",
-    busNumber: "1313 LL-12",
-    places: [43],
-    status: "Отменен",
-  },
-  {
-    startCity: "Гомель",
-    finishCity: "Брест",
-    startTime: "20:00",
-    finishTime: "22:30",
-    dateDeparture: "2024-09-13",
-    carrier: "ГомельЭкспресс",
-    busNumber: "1414 MM-13",
-    places: [44, 45],
-    status: "Заказан",
-  },
-  {
-    startCity: "Чаусы",
-    finishCity: "Минск",
-    startTime: "06:30",
-    finishTime: "09:00",
-    dateDeparture: "2024-09-14",
-    carrier: "ЧаусыТранс",
-    busNumber: "1515 NN-14",
-    places: [46, 47],
-    status: "В пути",
-  },
-  {
-    startCity: "Гродно",
-    finishCity: "Пинск",
-    startTime: "13:00",
-    finishTime: "15:30",
-    dateDeparture: "2024-09-15",
-    carrier: "ГродноАвто",
-    busNumber: "1616 OO-15",
-    places: [48],
-    status: "Завершён",
-  },
-  {
-    startCity: "Минск",
-    finishCity: "Гомель",
-    startTime: "10:00",
-    finishTime: "12:30",
-    dateDeparture: "2024-09-16",
-    carrier: "МинскПасс",
-    busNumber: "1717 PP-16",
-    places: [49, 50],
-    status: "Отменен",
-  },
-  {
-    startCity: "Брест",
-    finishCity: "Витебск",
-    startTime: "16:00",
-    finishTime: "18:30",
-    dateDeparture: "2024-09-17",
-    carrier: "БрестАвто",
-    busNumber: "1818 QQ-17",
-    places: [51],
-    status: "Заказан",
-  },
-  {
-    startCity: "Гомель",
-    finishCity: "Гродно",
-    startTime: "12:15",
-    finishTime: "14:45",
-    dateDeparture: "2024-09-18",
-    carrier: "ГомельТранс",
-    busNumber: "1919 RR-18",
-    places: [52, 53],
-    status: "В пути",
-  },
-  {
-    startCity: "Витебск",
-    finishCity: "Чаусы",
-    startTime: "15:30",
-    finishTime: "18:00",
-    dateDeparture: "2024-09-19",
-    carrier: "ВитебскЭкспресс",
-    busNumber: "2020 SS-19",
-    places: [54, 55],
-    status: "Завершён",
-  },
-  {
-    startCity: "Могилев",
-    finishCity: "Минск",
-    startTime: "09:15",
-    finishTime: "11:30",
-    dateDeparture: "2024-09-20",
-    carrier: "МогилевАвто",
-    busNumber: "2121 TT-20",
-    places: [56],
-    status: "Отменен",
-  },
-];

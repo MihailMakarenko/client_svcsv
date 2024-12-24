@@ -1,60 +1,98 @@
 .place-container {
+  position: relative; /* Позволяет позиционировать дочерние элементы */
   max-width: 400px;
   background-color: #ff7e5f;
   margin: auto;
-  padding: 10px;
+  padding: 20px;
   border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.place-container button:hover {
-  background-color: #2884ea;
-}
-
-.place {
-  display: block;
-  display: flex;
-  width: 100%;
-  height: 100%;
-  background-color: white;
-  border-radius: 5px;
-}
-
-.place p {
-  vertical-align: middle;
-  color: black;
-  margin: auto;
+.place-container h2 {
+  text-align: center;
+  color: white;
+  margin: 0; /* Убираем отступы */
+  margin-bottom: 10px;
 }
 
 .row-container {
+  gap: 24px;
   display: flex;
-  justify-content: space-around;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  margin: 10px 0;
 }
 
 .two-place-container {
   display: flex;
   gap: 10px;
-  font-size: 40px;
-  width: 35%;
+  width: 100%;
 }
 
 .place {
-  transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  background-color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  position: relative;
 }
 
-.place:hover {
-  background-color: #77b1f4;
+.place p {
+  margin: 0;
+  font-weight: bold;
+  color: black;
 }
 
 .selected {
   background-color: #72abec;
   color: white;
   border: solid 1px black;
-  transition: background-color 0.4s ease; /* Плавное изменение цвета фона для класса selected */
+  width: 58px;
+  height: 58px;
+}
+
+.occupied {
+  background-color: #d3d3d3; /* Цвет для занятых мест */
+  cursor: not-allowed; /* Указатель для недоступных мест */
 }
 
 .button-order {
   margin-top: 20px;
-  max-width: 200px;
+  width: 100%;
+  background-color: #2884ea;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button-order:hover {
+  background-color: #1e6bb8;
+}
+
+.place-container .close-button {
+  position: absolute; /* Позиционируем кнопку относительно контейнера */
+  top: 12px;
+  right: 13px;
+  cursor: pointer;
+  color: white; /* Цвет иконки */
+  transition: color 0.3s ease; /* Плавный переход цвета */
+}
+
+.close-button:hover {
+  color: #ffcccc; /* Изменение цвета при наведении */
+}
+
+.places {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-y: scroll;
+  -ms-overflow-style: none;
+  margin-bottom: 15px;
 }

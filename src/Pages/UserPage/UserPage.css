@@ -1,14 +1,44 @@
-.card-container-userPage{
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
+.card-container-userPage {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
-.pagination-container{
-    display: flex;
-    justify-content: center;
-    max-width: 500px;
-    margin: auto;
-    margin-top: 20px;
-    margin-bottom: 20px;
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  max-width: 500px;
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.header-orderCards {
+  font-size: 40px;
+  margin: auto;
+  max-width: 250px;
+  margin-bottom: 40px;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Центрирует кнопки */
+  /* Добавляет промежутки между кнопками */
+}
+
+.button-group button {
+  flex: 1 1 auto; /* Позволяет кнопкам растягиваться */
+  min-width: 120px; /* Минимальная ширина кнопки */
+}
+
+@media (max-width: 600px) {
+  .button-group {
+    flex-direction: column;
+    gap: 10px;
+    /* Кнопки располагаются вертикально */
+  }
+  .button-group button {
+    width: 100%; /* Кнопки занимают всю ширину */
+  }
 }

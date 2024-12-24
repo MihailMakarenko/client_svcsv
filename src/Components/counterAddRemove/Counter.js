@@ -2,23 +2,30 @@ import "./Counter.css";
 import { useState } from "react";
 
 function Counter(props) {
-  const [count, setCount] = useState(0);
+  const { countValue, onCountChange, countName, Text } = props;
+  const [count, setCount] = useState(countValue); // Используем переданное значение
+
+  const handleDecrease = () => {
+    const newCount = count > 9 ? count - 1 : 9;
+    setCount(newCount);
+    onCountChange(newCount); // Обновляем состояние в родителе
+  };
+
+  const handleIncrease = () => {
+    const newCount = count < 55 ? count + 1 : 55;
+    setCount(newCount);
+    onCountChange(newCount); // Обновляем состояние в родителе
+  };
+
   return (
     <div className="form-group">
-      <label for={props.typeLable}>{props.Text}</label>
-      <label>
-        {props.countName}: {count}
+      <label htmlFor={Text}>
+        {countName}: {count}
       </label>
-      <button
-        className="ButtonCounter"
-        onClick={() => setCount(count > 0 ? count - 1 : 0)}
-      >
+      <button type="button" className="ButtonCounter" onClick={handleDecrease}>
         Отнять
       </button>
-      <button
-        className="ButtonCounter"
-        onClick={() => setCount(count < 55 ? count + 1 : 55)}
-      >
+      <button type="button" className="ButtonCounter" onClick={handleIncrease}>
         Добавить
       </button>
     </div>

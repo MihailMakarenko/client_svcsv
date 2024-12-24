@@ -7,6 +7,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import "./Registration.css";
+import CheckBox from "@mui/material/Checkbox";
+import UserServerApi from "../../apiService/userService";
+import { useNavigate } from "react-router-dom";
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
@@ -16,20 +19,30 @@ const RegistrationForm = () => {
     phone: "",
     password: "",
     confirmPassword: "",
+    isGetNotification: false,
+    isGetNewsletter: false,
   });
 
+  const navigate = useNavigate();
+  const userServerApi = new UserServerApi();
+
   const [errors, setErrors] = useState({});
+  const [open, setOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [isSuccessful, setIsSuccessful] = useState(false); // Состояние для успешной регистрации
 
   const phonePattern = /^\+375\s?(25|29|33|44)\s?\d{3}\s?\d{2}\s?\d{2}$/; // Шаблон для номера РБ
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, type, checked, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
 
   const validate = () => {
     const newErrors = {};
-
     if (!formData.firstName) newErrors.firstName = "Имя обязательно";
     if (!formData.lastName) newErrors.lastName = "Фамилия обязательна";
     if (!formData.email) newErrors.email = "Почта обязательна";
@@ -47,22 +60,37 @@ const RegistrationForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      // Отправка данных на сервер
-      console.log("Данные отправлены:", formData);
+      try {
+        // Предполагаем, что addPerson возвращает промис, который разрешается при успешной регистрации
+        await userServerApi.addPerson(formData);
+
+        // Устанавливаем сообщение об успешной регистрации
+        setDialogMessage("Регистрация успешна!");
+        setIsSuccessful(true); // Устанавливаем состояние успешной регистрации
+        setOpen(true);
+      } catch (error) {
+        // Обработка ошибок, например, если пользователь уже зарегистрирован
+        setDialogMessage(
+          `Пользователь с такой почтой уже зарегистрирован. ${error}`
+        );
+        setIsSuccessful(false); // Устанавливаем состояние неуспешной регистрации
+        setOpen(true);
+      }
     }
-  };
-
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+    if (isSuccessful) {
+      navigate("/"); // Перенаправление на главную страницу только при успешной регистрации
+    }
+  };
+
+  const recoverPassword = () => {
+    // Логика восстановления пароля
   };
 
   return (
@@ -139,41 +167,46 @@ const RegistrationForm = () => {
           )}
         </div>
 
-        <React.Fragment>
-          <button
-            className="button-open-dialog"
-            variant="outlined"
-            onClick={handleClickOpen}
-          >
-            Open alert dialog
+        <div className="form-group">
+          <CheckBox
+            name="isGetNotification"
+            checked={formData.isGetNotification}
+            onChange={handleChange}
+          />
+          <span>Получать уведомления</span>
+        </div>
+
+        <div className="form-group">
+          <CheckBox
+            name="isGetNewsletter"
+            checked={formData.isGetNewsletter}
+            onChange={handleChange}
+          />
+          <span>Подписка на рассылку</span>
+        </div>
+
+        {/* <div className="form-group">
+          <button type="button" onClick={recoverPassword}>
+            Востановить пароль
           </button>
-          <Dialog
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {"Модальное окно что бы было"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Это окно необходимо что бы сдать 3 лабу
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <button onClick={handleClose}>Несогласн</button>
-              <button onClick={handleClose} autoFocus>
-                Согласен
-              </button>
-            </DialogActions>
-          </Dialog>
-        </React.Fragment>
+        </div> */}
 
         <button type="submit" className="submit-button">
           Зарегистрироваться
         </button>
       </form>
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Сообщение</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{dialogMessage}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            ОК
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

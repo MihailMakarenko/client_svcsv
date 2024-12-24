@@ -1,85 +1,80 @@
+.card {
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+  border-radius: 31px;
+  max-width: 300px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
 
- .card {
-    background: linear-gradient(135deg, #ff7e5f, #feb47b);
-    border-radius: 20px;
-    max-width: 300px;
-    padding: 30px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-   
-    overflow: hidden;
-  }
+.card-icon {
+  font-size: 80px;
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+}
 
+.card-header {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  color: white;
+  margin-bottom: 15px;
+}
 
+.card-details p {
+  text-align: start;
+  font-size: 16px;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
 
-  .card-icon {
-    font-size: 80px;
-    color: white;
-    text-align: center;
-    margin-bottom: 20px;
-  }
+.card-details strong {
+  color: #fff;
+}
 
-  .card-header {
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    color: white;
-    margin-bottom: 15px;
-  }
+.card-price {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  margin: 20px 0;
+  border-top: 2px solid rgba(255, 255, 255, 0.3);
+  padding-top: 10px;
+}
 
-  .card-details p {
-    text-align: start;
-    font-size: 16px;
-    color: #ffffff;
-    margin-bottom: 10px;
-  }
+.button-order {
+  display: block;
+  background-color: white;
+  color: #ff7e5f;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
 
-  .card-details strong {
-    color: #fff;
-  }
+.button-order:hover {
+  background-color: #ff7e5f;
+  color: white;
+  transform: scale(1.05);
+}
 
-  .card-price {
-    font-size: 24px;
-    font-weight: bold;
-    color: white;
-    text-align: center;
-    margin: 20px 0;
-    border-top: 2px solid rgba(255, 255, 255, 0.3);
-    padding-top: 10px;
-  }
+.card-footer {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  margin-top: 15px;
+}
 
-  .button-order {
-    display: block;
-    background-color: white;
-    color: #ff7e5f;
-    padding: 15px;
-    border: none;
-    border-radius: 8px;
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    width: 100%;
-    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
-  }
+.BusAllCards {
+  display: flex;
+}
 
-  .button-order:hover {
-    background-color: #ff7e5f;
-    color: white;
-    transform: scale(1.05);
-  }
-
-  .card-footer {
-    text-align: center;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 14px;
-    margin-top: 15px;
-  }
-
-  .BusAllCards{
-    display: flex;
-
-  }
-
-  .button-delete{
-    margin: 10px;
-  }
+.button-delete {
+  margin: 10px;
+}
