@@ -18,6 +18,7 @@ import TripRegisterScheduleServerApi from "../../apiService/tripRegisterSchedule
 import Pagination from "@mui/material/Pagination";
 import ScheduleServerApi from "../../apiService/scheduleService";
 import Stack from "@mui/material/Stack";
+import { useNavigate } from "react-router-dom";
 
 // Компонент для отображения модального окна с информацией о автобусе
 const ModalWindow = ({ onClose, record }) => (
@@ -46,6 +47,7 @@ function AvailableBus() {
   const [busesNumber, setBusesNumber] = useState([]);
   const [busRoutes, setBusRoutes] = useState([]);
   const [routes, setRoutes] = useState([]);
+  const navigate = useNavigate();
   const [notification, setNotification] = useState({
     open: false,
     message: "",
@@ -239,6 +241,14 @@ function AvailableBus() {
     const routeToEdit = busRoutes[index];
     setEditIndex(index);
     setFormData(routeToEdit);
+  };
+
+  const exit = () => {
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("idUser");
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    navigate("/");
   };
 
   const handleDelete = async (index) => {
@@ -497,8 +507,14 @@ function AvailableBus() {
           </form>
 
           <div style={{ marginTop: 20 }}>
-            <Button>Управленние</Button>
-            <Button>Выйти</Button>
+            <Button
+              onClick={() => {
+                navigate("/admin-profile");
+              }}
+            >
+              Управленние
+            </Button>
+            <Button onClick={exit}>Выйти</Button>
           </div>
         </div>
       </div>

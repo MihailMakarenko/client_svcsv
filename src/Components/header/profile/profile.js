@@ -15,8 +15,13 @@ function Profile({ onAuthorizationStatus }) {
 
   const handleOpenModal = () => {
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
     if (token) {
-      navigate("/UserPage"); // Перенаправляем на UserPage, если токен существует
+      if (role === "admin") {
+        navigate("/available-bus"); // Перенаправляем на available-bus для других ролей
+      } else {
+        navigate("/UserPage"); // Перенаправляем на UserPage, если токен существует
+      }
     } else {
       setIsModalOpen(true);
       document.body.style.overflow = "hidden"; // Отключаем прокрутку

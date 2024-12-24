@@ -151,9 +151,15 @@ function OrderCardBus(props) {
       <Button
         onClick={handleButtonClickshowPlaceInBus}
         variant="contained"
-        disabled={!isAvailable || !isUserAuthenticated}
+        disabled={
+          !isAvailable ||
+          !isUserAuthenticated ||
+          localStorage.getItem("role") === "admin"
+        }
       >
-        {isAvailable
+        {localStorage.getItem("role") === "admin"
+          ? "Вы админ"
+          : isAvailable
           ? isUserAuthenticated
             ? "Заказать"
             : "Необходимо войти"

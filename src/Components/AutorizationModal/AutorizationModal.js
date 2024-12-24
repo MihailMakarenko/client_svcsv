@@ -58,6 +58,7 @@ function AutorizationModal({ onClose }) {
       localStorage.setItem("token", response.token);
       localStorage.setItem("firstName", response.name);
       localStorage.setItem("idUser", response.idUser);
+      localStorage.setItem("role", response.role);
 
       console.log("Аутентификация успешна!", response);
     } catch (error) {

@@ -143,6 +143,7 @@ export default function UserPage() {
     localStorage.removeItem("firstName");
     localStorage.removeItem("idUser");
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     navigate("/");
   };
 
