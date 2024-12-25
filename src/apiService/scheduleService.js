@@ -67,14 +67,16 @@ class scheduleServerApi {
   }
 
   async createSchedule(data, tripId) {
+    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    console.log(data);
     try {
       const response = await this.api.post("/", {
-        Monday: data.Monday,
-        Wednesday: data.Wednesday,
-        Thursday: data.Thursday,
-        Friday: data.Friday,
-        Saturday: data.Saturday,
-        Sunday: data.Sunday,
+        Monday: data.monday,
+        Wednesday: data.wednesday,
+        Thursday: data.thursday,
+        Friday: data.friday,
+        Saturday: data.saturday,
+        Sunday: data.sunday,
         TripId: tripId,
       });
 

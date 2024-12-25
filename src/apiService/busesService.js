@@ -93,6 +93,27 @@ class BusesServerApi {
       throw error; // Пробрасываем ошибку, чтобы её можно было обработать в handleSubmit
     }
   }
+
+  async deleteBuse(buseId) {
+    try {
+      const response = await this.api.delete(`/${buseId}`);
+      return response.data; // Успешный ответ
+    } catch (error) {
+      // Обработка ошибок
+      if (error.response) {
+        // Запрос был сделан и сервер ответил со статусом, который выходит за пределы 2xx
+        const status = error.response.status;
+        const message = error.response.data.message || "Ошибка сервера";
+        throw new Error(`${message}`);
+      } else if (error.request) {
+        // Запрос был сделан, но ответа не было
+        throw new Error("Сервер не отвечает");
+      } else {
+        // Произошла ошибка при настройке запроса
+        throw new Error(`Ошибка: ${error.message}`);
+      }
+    }
+  }
 }
 
 export default BusesServerApi;

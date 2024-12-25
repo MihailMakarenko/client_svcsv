@@ -15,6 +15,7 @@ import BusesServerApi from "../../apiService/busesService";
 import RouteServerApi from "../../apiService/routeServise";
 import Pagination from "@mui/material/Pagination";
 import CallbackServerApi from "../../apiService/callbackService";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogTitle,
@@ -34,8 +35,9 @@ function AdminProfile() {
   const [finishCity, setFinishCity] = useState("");
   const [distance, setDistance] = useState(20);
   const [errorMessage, setErrorMessage] = useState("");
-  // const [loading, setLoading] = useState(false);
   const [seats, setSeats] = useState(9); // Начальное количество мест
+
+  const navigate = useNavigate();
 
   const [currentPageBus, setCurrentPageBus] = useState(1);
   const [currentPageRoute, setCurrentPageRoute] = useState(1);
@@ -97,6 +99,10 @@ function AdminProfile() {
   };
 
   useEffect(() => {
+    const role = localStorage.getItem("role");
+    if (role != "admin") {
+      navigate("/"); //
+    }
     fetchRoutes();
     fetchBuses();
     fetchCallbacks();
@@ -204,6 +210,16 @@ function AdminProfile() {
       // Логика для обработки успешного ответа
       setErrorMessage("Автобус успешно добавлен.");
       setOpenSnackbar(true);
+      setBuses((prevBuses) => [
+        ...prevBuses,
+        {
+          BusNumber: response.BusNumber,
+          Model: response.Model,
+          Capacity: response.Capacity,
+          NameCompany: response.NameCompany,
+          BusId: response.BusId, // Если сервер возвращает ID автобуса
+        },
+      ]);
       // Очистка полей
       setBusNumber("");
       setBusModel("");
@@ -244,6 +260,15 @@ function AdminProfile() {
       );
       setErrorMessage("Маршрут успешно добавлен.");
       setOpenSnackbar(true);
+      setRoutes((prevRoutes) => [
+        ...prevRoutes,
+        {
+          RouteId: response.RoteId,
+          StartCity: response.StartCity,
+          FinishCity: response.FinishCity,
+          Distance: response.Distance,
+        },
+      ]);
       // Очистка полей
       setStartCity("");
       setFinishCity("");
@@ -264,11 +289,37 @@ function AdminProfile() {
 
   const handleEditBus = async (e) => {};
 
-  const handleDeleteBus = async (e) => {};
+  async function handleDeleteBus(busId) {
+    try {
+      await busesServerApi.deleteBuse(busId);
+      setBuses((prevBuses) => prevBuses.filter((bus) => bus.BusId !== busId)); // Удаляем автобус из массива
+      setErrorMessage("Автобус успешно удален!");
+      setOpenSnackbar(true);
+    } catch (error) {
+      const message =
+        error.message || "Произошла ошибка при удалении автобуса.";
+      setErrorMessage(message);
+      setOpenSnackbar(true);
+    }
+  }
 
   const handleEditRoute = async (e) => {};
 
-  const handleDeleteRoute = async (e) => {};
+  async function handleDeleteRoute(routeId) {
+    try {
+      await routeServerApi.deleteRoute(routeId);
+      setRoutes((prevRoutes) =>
+        prevRoutes.filter((route) => route.RouteId !== routeId)
+      ); // Удаляем автобус из массива
+      setErrorMessage("Маршрут успешно удален!");
+      setOpenSnackbar(true);
+    } catch (error) {
+      const message =
+        error.message || "Произошла ошибка при удалении маршрута.";
+      setErrorMessage(message);
+      setOpenSnackbar(true);
+    }
+  }
 
   const handleCall = async (callbackId) => {
     const response = await callbackServerApi.updateStatusCallback(callbackId);
@@ -357,22 +408,22 @@ function AdminProfile() {
                   </tr>
                 </thead>
                 <tbody>
-                  {buses.map((route, index) => (
+                  {buses.map((buse, index) => (
                     <tr key={index}>
-                      <td>{route.BusNumber}</td>
-                      <td>{route.NameCompany}</td>
-                      <td>{route.Model}</td>
-                      <td>{route.Capacity}</td>
+                      <td>{buse.BusNumber}</td>
+                      <td>{buse.NameCompany}</td>
+                      <td>{buse.Model}</td>
+                      <td>{buse.Capacity}</td>
                       <td>
-                        <button
+                        {/* <button
                           className="buttonTableClass"
-                          onClick={() => handleEditBus(index)}
+                          onClick={() => handleEditBus(buse.BusId)}
                         >
                           Изменить
-                        </button>
+                        </button> */}
                         <button
                           className="buttonTableClass"
-                          onClick={() => handleDeleteBus(index)}
+                          onClick={() => handleDeleteBus(buse.BusId)}
                         >
                           Удалить
                         </button>
@@ -452,15 +503,15 @@ function AdminProfile() {
                       <td>{route.Distance}</td>
 
                       <td>
-                        <button
+                        {/* <button
                           className="buttonTableClass"
                           onClick={() => handleEditRoute(index)}
                         >
                           Изменить
-                        </button>
+                        </button> */}
                         <button
                           className="buttonTableClass"
-                          onClick={() => handleDeleteRoute(index)}
+                          onClick={() => handleDeleteRoute(route.RouteId)}
                         >
                           Удалить
                         </button>

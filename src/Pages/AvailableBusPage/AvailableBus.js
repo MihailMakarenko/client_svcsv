@@ -98,6 +98,11 @@ function AvailableBus() {
 
   // Получение маршрутов и автобусов
   useEffect(() => {
+    const role = localStorage.getItem("role");
+    if (role != "admin") {
+      navigate("/"); //
+    }
+
     const fetchRoutes = async () => {
       try {
         const response = await routeServerApi.getRoutes();
@@ -113,6 +118,7 @@ function AvailableBus() {
     const fetchBuses = async () => {
       try {
         const response = await busesServerApi.getAllBuses();
+
         const busNumbers = response.map((bus) => bus.BusNumber);
         setBusesNumber(busNumbers);
       } catch (error) {
@@ -178,8 +184,15 @@ function AvailableBus() {
       !finishCity ||
       !startTime ||
       !finishTime ||
-      !price
-      // !DefaultBusNumber
+      !price ||
+      !DefaultBusNumber ||
+      (!formData.monday &&
+        !formData.tuesday &&
+        !formData.wednesday &&
+        !formData.thursday &&
+        !formData.friday &&
+        !formData.saturday &&
+        !formData.sunday)
     ) {
       setNotification({
         open: true,
@@ -253,6 +266,7 @@ function AvailableBus() {
 
   const handleDelete = async (index) => {
     const routeToDelete = busRoutes[index];
+    console.log(routeToDelete);
     // console.log(busRoutes[index].scheduleId);
     const response = await scheduleServerApi.setFalseShedule(
       busRoutes[index].scheduleId
@@ -444,8 +458,15 @@ function AvailableBus() {
                   type="number"
                   name="price"
                   value={formData.price}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Проверяем, если значение больше или равно 0
+                    if (value === "" || Number(value) >= 0) {
+                      handleInputChange(e); // Вызываем обработчик, если значение корректное
+                    }
+                  }}
                   required
+                  min={0} // Устанавливаем минимальное значение
                 />
                 {" p."}
               </Label>

@@ -3,6 +3,7 @@ import BaseUrl from "./configuration";
 import RouteService from "./routeServise";
 import ScheduleService from "./scheduleService";
 import TripServerApi from "./tripService";
+import RegisterBookService from "./registrerBookService";
 
 class TripRegisterScheduleServerApi {
   constructor() {
@@ -20,10 +21,12 @@ class TripRegisterScheduleServerApi {
 
   async addFormData(formData) {
     try {
-      console.log(formData);
       const routeService = new RouteService();
       const scheduleService = new ScheduleService();
       const tripServerApi = new TripServerApi();
+      const registerBookService = new RegisterBookService();
+      console.log("aaa");
+      console.log(formData);
       const routeId = await routeService.getRouteIdByCities(
         formData.startCity,
         formData.finishCity
@@ -36,6 +39,12 @@ class TripRegisterScheduleServerApi {
         );
         console.log(response);
       }
+      const registerBook = await registerBookService.addRegisterBook(
+        formData,
+        trip.TripId,
+        formData.DefaultBusNumber
+      );
+      console.log(registerBook);
     } catch (error) {
       console.log("ОШИБКА");
     }

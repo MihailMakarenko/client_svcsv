@@ -29,6 +29,22 @@ class registerBookServerApi {
       throw new Error("Не удалось удалить будущие поездки");
     }
   }
+
+  async addRegisterBook(formData, tripId, busesNumber) {
+    console.log("IIII");
+    console.log(busesNumber);
+    try {
+      const response = await this.api.post(`/addRegisterBook`, {
+        FormData: formData,
+        TripId: tripId,
+        DefaultBusNumber: busesNumber,
+      });
+      return response.data; // Возвращаем данные ответа, если нужно
+    } catch (error) {
+      console.error("Ошибка при добавлении в RegisterBook:", error.message);
+      throw new Error("Ошибка");
+    }
+  }
 }
 
 export default registerBookServerApi;

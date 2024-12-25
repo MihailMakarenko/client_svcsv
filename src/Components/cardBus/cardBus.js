@@ -6,11 +6,11 @@ import CardContent from "@mui/material/CardContent";
 function CardBus(props) {
   const getActiveDays = (props) => {
     const days = [];
-    if (props.monday) days.push("Пнонедельник");
+    if (props.monday) days.push("Понедельник");
     if (props.tuesday) days.push("Вторник");
     if (props.wednesday) days.push("Среда");
     if (props.thursday) days.push("Четверг");
-    if (props.friday) days.push("Пятницы");
+    if (props.friday) days.push("Пятница");
     if (props.saturday) days.push("Субота");
     if (props.sunday) days.push("Воскресенье");
     return days;
@@ -29,9 +29,6 @@ function CardBus(props) {
         </p>
         <p>
           <strong>Прибытие:</strong> {props.finishTime}
-        </p>
-        <p>
-          <strong>Перевозчик:</strong> {props.carrier}
         </p>
 
         <div>

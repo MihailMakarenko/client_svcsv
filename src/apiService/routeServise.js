@@ -102,6 +102,27 @@ class RouteServerApi {
       throw new Error(errorMessage); // Пробрасываем ошибку
     }
   }
+
+  async deleteRoute(routeId) {
+    try {
+      const response = await this.api.delete(`/${routeId}`);
+      return response.data; // Успешный ответ
+    } catch (error) {
+      // Обработка ошибок
+      if (error.response) {
+        // Запрос был сделан и сервер ответил со статусом, который выходит за пределы 2xx
+        const status = error.response.status;
+        const message = error.response.data.message || "Ошибка сервера";
+        throw new Error(`${message}`);
+      } else if (error.request) {
+        // Запрос был сделан, но ответа не было
+        throw new Error("Сервер не отвечает");
+      } else {
+        // Произошла ошибка при настройке запроса
+        throw new Error(`Ошибка: ${error.message}`);
+      }
+    }
+  }
 }
 
 export default RouteServerApi;
